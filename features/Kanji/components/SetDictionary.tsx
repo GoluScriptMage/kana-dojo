@@ -7,6 +7,7 @@ import { useAudioPreferences, useThemePreferences } from '@/features/Preferences
 import { useJapaneseTTS } from '@/features/Preferences/hooks/useJapaneseTTS';
 import FuriganaText from '@/shared/ui-composite/text/FuriganaText';
 import { useClick } from '@/shared/hooks/generic/useAudio';
+import { removeVerbDuplicates } from '@/shared/utils/meanings';
 import { Volume2 } from 'lucide-react';
 import { memo, useCallback } from 'react';
 
@@ -114,44 +115,47 @@ const KanjiSetDictionary = memo(function KanjiSetDictionary({
                   const pronunciation = onyomiReading.split(' ')[1] || onyomiReading;
 
                   return (
-                    <div
+                    <button
+                      type='button'
                       key={onyomiReading}
+                      onClick={() => {
+                        void playReadingPronunciation(pronunciation);
+                      }}
+                      disabled={
+                        !pronunciationEnabled || !pronunciation.trim()
+                      }
                       className={clsx(
-                        'flex w-full flex-row items-center justify-center text-sm md:text-base',
+                        'group flex w-full flex-row items-center justify-center bg-transparent px-2 py-1.5 text-sm md:text-base',
                         'w-full text-(--secondary-color)',
+                        pronunciationEnabled &&
+                          pronunciation.trim() &&
+                          'hover:cursor-pointer md:hover:text-(--main-color)',
+                        (!pronunciationEnabled || !pronunciation.trim()) &&
+                          'cursor-not-allowed opacity-70',
                         i < kanjiObj.onyomi.slice(0, 2).length - 1 &&
                           'border-r-1 border-(--border-color)',
                       )}
+                      aria-label={`Play pronunciation for ${kanjiObj.kanjiChar} on'yomi ${pronunciation}`}
                     >
-                      <div className='flex items-center gap-2 px-2 py-1.5'>
+                      <div className='flex items-center gap-1.75 sm:gap-2'>
                         <span>
                           {showKana
                             ? pronunciation
                             : onyomiReading.split(' ')[0]}
                         </span>
-                        <button
-                          type='button'
-                          onClick={() => {
-                            void playReadingPronunciation(pronunciation);
-                          }}
-                          disabled={
-                            !pronunciationEnabled || !pronunciation.trim()
-                          }
+                        <span
                           className={clsx(
                             'flex h-6 w-6 items-center justify-center rounded-full bg-(--card-color) text-(--main-color)',
                             'transition-colors duration-200',
                             pronunciationEnabled &&
                               pronunciation.trim() &&
-                              'hover:cursor-pointer md:hover:bg-(--main-color)/15',
-                            (!pronunciationEnabled || !pronunciation.trim()) &&
-                              'cursor-not-allowed opacity-70',
+                              'md:group-hover:bg-(--main-color)/15',
                           )}
-                          aria-label={`Play pronunciation for ${kanjiObj.kanjiChar} on'yomi ${pronunciation}`}
                         >
                           <Volume2 size={15} className='fill-current' />
-                        </button>
+                        </span>
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -185,44 +189,47 @@ const KanjiSetDictionary = memo(function KanjiSetDictionary({
                   const pronunciation = kunyomiReading.split(' ')[1] || kunyomiReading;
 
                   return (
-                    <div
+                    <button
+                      type='button'
                       key={kunyomiReading}
+                      onClick={() => {
+                        void playReadingPronunciation(pronunciation);
+                      }}
+                      disabled={
+                        !pronunciationEnabled || !pronunciation.trim()
+                      }
                       className={clsx(
-                        'flex w-full flex-row items-center justify-center text-sm md:text-base',
+                        'group flex w-full flex-row items-center justify-center bg-transparent px-2 py-1.5 text-sm md:text-base',
                         'w-full text-(--secondary-color)',
+                        pronunciationEnabled &&
+                          pronunciation.trim() &&
+                          'hover:cursor-pointer md:hover:text-(--main-color)',
+                        (!pronunciationEnabled || !pronunciation.trim()) &&
+                          'cursor-not-allowed opacity-70',
                         i < kanjiObj.kunyomi.slice(0, 2).length - 1 &&
                           'border-r-1 border-(--border-color)',
                       )}
+                      aria-label={`Play pronunciation for ${kanjiObj.kanjiChar} kun'yomi ${pronunciation}`}
                     >
-                      <div className='flex items-center gap-2 px-2 py-1.5'>
+                      <div className='flex items-center gap-1.75 sm:gap-2'>
                         <span>
                           {showKana
                             ? pronunciation
                             : kunyomiReading.split(' ')[0]}
                         </span>
-                        <button
-                          type='button'
-                          onClick={() => {
-                            void playReadingPronunciation(pronunciation);
-                          }}
-                          disabled={
-                            !pronunciationEnabled || !pronunciation.trim()
-                          }
+                        <span
                           className={clsx(
                             'flex h-6 w-6 items-center justify-center rounded-full bg-(--card-color) text-(--main-color)',
                             'transition-colors duration-200',
                             pronunciationEnabled &&
                               pronunciation.trim() &&
-                              'hover:cursor-pointer md:hover:bg-(--main-color)/15',
-                            (!pronunciationEnabled || !pronunciation.trim()) &&
-                              'cursor-not-allowed opacity-70',
+                              'md:group-hover:bg-(--main-color)/15',
                           )}
-                          aria-label={`Play pronunciation for ${kanjiObj.kanjiChar} kun'yomi ${pronunciation}`}
                         >
                           <Volume2 size={15} className='fill-current' />
-                        </button>
+                        </span>
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -230,7 +237,7 @@ const KanjiSetDictionary = memo(function KanjiSetDictionary({
           </div>
 
           <p className='w-full text-xl text-(--secondary-color) md:text-2xl'>
-            {kanjiObj.meanings.join(', ')}
+            {removeVerbDuplicates(kanjiObj.meanings).join(', ')}
           </p>
         </div>
       ))}
